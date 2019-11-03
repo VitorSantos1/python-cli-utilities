@@ -1,6 +1,6 @@
 # All functions to improve Python interaction with Docker must be placed here.
 #
-# Author: Vitor Santos <vitor.h.santos@inesctec.pt>
+# Author: Vitor Santos <vitorhgsantos90@gmail.com>
 
 import platform, time
 import python_shell_utilities

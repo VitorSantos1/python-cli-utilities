@@ -74,3 +74,7 @@ import python_docker_utilities # For Docker utilities
 ```
 
 When the main script is executed, the library is compiled in a `.pyc` file to be used by the script.
+
+## Licence
+
+[MIT](LICENSE)

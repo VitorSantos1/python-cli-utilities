@@ -1,6 +1,6 @@
 # All functions to improve Python interaction with shells must be placed here.
 #
-# Author: Vitor Santos <vitor.h.santos@inesctec.pt>
+# Author: Vitor Santos <vitorhgsantos90@gmail.com>
 
 import subprocess, sys, platform, shutil, stat, errno, re, os, distutils.dir_util, glob, getpass, zipfile, filecmp
 
