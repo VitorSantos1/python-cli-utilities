@@ -16,12 +16,12 @@ def string_verifier(parameter):
     if type(parameter) is not str:
         exit_script("Please insert a string for command shell in order to execute it.")  
 
-# Function to execute commands. It is possible to make it raise the exception.
-def execute_command_and_return_status(command, raise_exception=False):
+# Function to execute commands
+def execute_command(command, raise_exception=False):
     string_verifier(command)
 
     try:    
-        subprocess.check_call(command, shell=True, stderr=subprocess.PIPE)
+        subprocess.run(command, shell=True, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as e:
         if raise_exception:
             raise
@@ -30,28 +30,13 @@ def execute_command_and_return_status(command, raise_exception=False):
     else:
         return 0
 
-# Function to execute commands. It is possible to make it raise the exception.
-def execute_command_and_return_output(command, raise_exception=False):
-    string_verifier(command)
-
-    try:
-        return subprocess.check_output(command, shell=True, stderr=subprocess.PIPE).decode("utf-8").strip('\n')
-    except subprocess.CalledProcessError as e:
-        if raise_exception:
-            raise
-        else:
-            return e.returncode
-
 # Prompt for user input 
 def user_input(input_message, password_input=False):
     user_input = ""
 
     # Check python version and use its own input function
     while user_input == "":
-        if sys.version_info >= (3,0):
-            user_input = getpass.getpass(input_message) if password_input else (str(input(input_message)))
-        else:
-            user_input = getpass.getpass(input_message) if password_input else (str(raw_input(input_message)))
+        user_input = getpass.getpass(input_message) if password_input else (str(input(input_message)))
     
     return user_input
 
@@ -109,18 +94,18 @@ def remove_file(file_path):
 def check_if_path_exists(path):
     return True if glob.glob(path) else False
 
-# Check if entity (file or directory) exists. If not, it will be created
+# Check if entity (file or directory) exists. If not, it will be created. Paths must be absolute
 def check_entity_and_create(path, type):
     if not check_if_path_exists(path):
         if type == "directory":
             os.makedirs(path, mode=0o774)
         elif type == "file":
-            check_entity_and_create('/'.join(path.split('/')[:-1]), "directory")
+            check_entity_and_create(path, "directory")
             open(path, "w").close()
 
-# Copy file to destination, making sure all parent directories exist
+# Copy file to destination, making sure all parent directories exist. Paths must be absolute
 def copy_file(source_path, dest_path):
-    check_entity_and_create('/'.join(dest_path.split('/')[:-1]), "directory")
+    check_entity_and_create('dest_path', "directory")
     shutil.copy(source_path, dest_path)
 
 # Check if destination file exists. If not, the source file will be copied to destination
@@ -128,7 +113,7 @@ def check_dest_file_and_copy(source_path, dest_path):
     if not check_if_path_exists(dest_path):
         copy_file(source_path, dest_path)
 
-# Copy files and folders recursively to a destination path
+# Copy files and folders recursively to a destination path. Paths must be absolute
 def copy_tree_recursively(root_source_path, dest_path):
     if check_if_path_exists(root_source_path):
         check_entity_and_create(dest_path, "directory")
@@ -136,25 +121,19 @@ def copy_tree_recursively(root_source_path, dest_path):
     else:
         print("Root directory doesn't exist. Script will carry on.")
 
-# Get children from directory. They can be all types of children or files or directories exclusively. Wildcards not supported.
-def get_children_from_directory(path, children_type="all", absolute_path=False):
+# Get children from directory. They can be all types of children or files or directories exclusively. Wildcards not supported. Paths must be absolute
+def get_children_from_directory(path, children_type="all"):
     if check_if_path_exists(path) and os.path.isdir(path):
         if children_type == "directory":
-            return ([path + f + "/" for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))] 
-                if absolute_path 
-                else [f + "/" for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))])
+            return [path + f + "/" for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
         elif children_type == "file":
-            return ([path + f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))] 
-                if absolute_path 
-                else [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))])
+            return [path + f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]    
         else:
-            return ([(path + f + "/" if os.path.isdir(os.path.join(path, f)) else path + f) for f in os.listdir(path)] 
-                if absolute_path 
-                else [(f + "/" if os.path.isdir(os.path.join(path, f)) else f) for f in os.listdir(path)])
+            return [(path + f + "/" if os.path.isdir(os.path.join(path, f)) else path + f) for f in os.listdir(path)] 
     else:
         exit_script("Directory doesn't exist.")
 
-# Get tree from path provided with wildcards. The wildcard must be used at the end of the path.
+# Get tree from path provided with wildcards. The wildcard must be used at the end of the path. Paths must be absolute
 def get_tree_from_wildcard_path(path):
     tree = []
     array_of_directories = glob.glob(path)

@@ -12,8 +12,7 @@ Tested operating systems and shells:
 
 ### List of Features
 
-* Shell command execution with status code return;
-* Shell command execution with output return;
+* Shell command execution with output printed and status code returned;
 * Prompt for user input. Secret prompts, used for credential inputs, are possible;
 * Check if user prompt is `yes`;
 * Check if user prompt is `no`;
